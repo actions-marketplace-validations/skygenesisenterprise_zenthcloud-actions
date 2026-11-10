@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    if: ${{ github.repository_owner == 'cloudflare' }}
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: read
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install modules
+        run: npm ci
+
+      - name: Create Version PR
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          # Changesets owns the final immutable GitHub release. The custom publish
+          # script replaces build-and-tag-action by compiling and verifying the
+          # version and floating tags before Changesets publishes the release.
+          createGithubReleases: true
+          publish: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
