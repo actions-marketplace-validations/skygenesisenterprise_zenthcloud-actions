@@ -1,78 +1,79 @@
-# Wrangler GitHub Action
+# ZenthCloud Actions
 
-Easy-to-use GitHub Action to use [Wrangler](https://developers.cloudflare.com/workers/cli-wrangler/). Makes deploying Workers a breeze.
+[![License: MIT](https://img.shields.io/github/license/skygenesisenterprise/zenthcloud-actions)](LICENSE)
+[![Node.js 24](https://img.shields.io/badge/Node.js-24-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-node24-2088FF?logo=githubactions&logoColor=white)](https://docs.github.com/en/actions)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/CONTRIBUTING.md)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/GUkDugVh34)
 
-## Wrangler v3 Support
+> Deploy, manage and integrate applications with ZenthCloud — from GitHub Actions.
 
-The action now defaults to **Wrangler v4**. If you need to stay on Wrangler v3, you can pin the version explicitly:
+**ZenthCloud Actions** is the official GitHub Actions integration for [ZenthCloud](https://github.com/skygenesisenterprise/zenthcloud), the open-source, self-hostable cloud platform for deploying and operating applications, databases and infrastructure. It turns a GitHub workflow into a deployment pipeline: trigger builds, follow their status and surface the results in the repository, across all three ZenthCloud modes — **Self**, **Hybrid** and **Cloud**.
 
-```yaml
-- uses: cloudflare/wrangler-action@v4
-  with:
-    apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    wranglerVersion: "3.90.0"
-```
+**Perfect for:** platform and DevOps teams deploying to ZenthCloud from CI, agencies automating client infrastructure, and any repository that wants deployments driven by pull requests, pushes or manual dispatch instead of the dashboard.
 
-## Workers Previews
+> **Status:** this repository is derived from the open-source [`cloudflare/wrangler-action`](https://github.com/cloudflare/wrangler-action) project and is being migrated to the ZenthCloud CI/CD API (`resolve`, `deploy`, `status`, `logs`, `cancel`, `redeploy`). Until that integration lands, the deploy action still runs through the bundled legacy build engine inherited from the upstream project. Only the behavior documented in this README is operational — nothing here claims ZenthCloud compatibility for code paths that do not exist yet.
 
-Workers Previews require Wrangler **4.136.3 or newer**. To run Wrangler directly from a pull request workflow:
+## Contents
 
-```yaml
-name: Preview
+- [ZenthCloud Actions](#zenthcloud-actions)
+  - [Contents](#contents)
+  - [Why ZenthCloud Actions matters](#why-zenthcloud-actions-matters)
+  - [What you can do](#what-you-can-do)
+    - [Deploy](#deploy)
+    - [Report](#report)
+  - [Quick start](#quick-start)
+  - [Authentication](#authentication)
+  - [Configuration](#configuration)
+    - [Inputs](#inputs)
+    - [Outputs](#outputs)
+    - [Permissions](#permissions)
+  - [Examples](#examples)
+  - [Troubleshooting](#troubleshooting)
+  - [Development](#development)
+  - [FAQ](#faq)
+  - [Related resources](#related-resources)
+    - [Official](#official)
+    - [Community](#community)
+    - [Commercial](#commercial)
+  - [Contributing](#contributing)
+  - [Security](#security)
+  - [License and provenance](#license-and-provenance)
+  - [Note](#note)
 
-on: [pull_request]
+## Why ZenthCloud Actions matters
 
-jobs:
-  preview:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - run: npx wrangler preview --json
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-```
+🎯 **The official integration** — maintained by Sky Genesis Enterprise alongside the ZenthCloud platform, aligned with the ZenthCloud CI/CD API instead of an unrelated vendor's tooling.
 
-To expose Preview outputs and create a GitHub Deployment and job summary, use `wrangler-action`:
+🚀 **Deploy from any event** — push to `main`, pull requests, schedules or manual `workflow_dispatch`, targeting the environment your project defines.
 
-```yaml
-name: Preview
+📦 **Environments, secrets and vars** — bind values from the workflow `env` to your project, so credentials never live in the repository.
 
-on: [pull_request]
+🔒 **Least privilege by default** — a deploy workflow needs `contents: read` only, and the token is passed through GitHub secrets, never printed into logs.
 
-permissions:
-  contents: read
-  deployments: write
+🧩 **One integration, three modes** — the same workflow targets ZenthCloud Self, Hybrid and Cloud installations.
 
-jobs:
-  preview:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Deploy preview
-        id: preview
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "4.136.3"
-          command: preview --name pr-${{ github.event.pull_request.number }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-```
+🤝 **Open source** — MIT licensed, with the provenance of the derived code preserved and attributable.
 
-The action exposes `preview-url`, `preview-deployment-url`, `preview-name`, `preview-id`, and `preview-deployment-id` outputs. `deployment-url` is also set to the stable `preview-url`.
+## What you can do
 
-## Big Changes in v3
+### Deploy
 
-- Wrangler v1 is no longer supported.
-- Global API key & Email Auth no longer supported
-- Action version syntax is newly supported. This means e.g. `uses: cloudflare/wrangler-action@v4`, `uses: cloudflare/wrangler-action@v4.x`, and `uses: cloudflare/wrangler-action@v4.x.x` are all now valid syntax. Previously supported syntax e.g. `uses: cloudflare/wrangler-action@3.x.x` is no longer supported -- the prefix `v` is now necessary.
+- Trigger a deployment of your project from a GitHub workflow, on push, pull request, schedule or manual dispatch.
+- Deploy to a named environment and bind secrets and vars from the workflow environment.
+- Run commands before and after the deployment with `preCommands` and `postCommands`.
+- Pick the package manager (`npm`, `yarn`, `pnpm`, `bun`) or let the action infer it from your lockfile.
 
-[Refer to Changelog for more information](CHANGELOG.md).
+### Report
 
-## Usage
+- Expose the command output, standard error and deployment URL as step outputs for later workflow steps.
+- Create GitHub Deployments and job summaries when a `gitHubToken` is provided.
+- Keep workflow logs quiet with the `quiet` input when the output is not needed.
 
-Add `wrangler-action` to the workflow for your Workers/Pages application. The below example will deploy a Worker on a `git push` to the `main` branch:
+## Quick start
+
+Create a workflow file in your repository (`.github/workflows/deploy.yml`):
 
 ```yaml
 name: Deploy
@@ -82,127 +83,98 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
     steps:
       - uses: actions/checkout@v6
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v4
+      - name: Deploy to ZenthCloud
+        uses: skygenesisenterprise/zenthcloud-actions@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
 ```
+
+The token lives in the repository secrets (see [Authentication](#authentication)); the deployment runs on every push to `main`.
 
 ## Authentication
 
-You'll need to configure Wrangler using GitHub's Secrets feature - go to "Settings -> Secrets" and add your Cloudflare API token (for help finding this, see the [Workers documentation](https://developers.cloudflare.com/workers/wrangler/ci-cd/#api-token)). Your API token is encrypted by GitHub, and the action won't print it into logs, so it should be safe!
+The action authenticates with an API token stored as a [GitHub secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions):
 
-With your API token set as a secret for your repository, pass it to the action in the `with` block of your workflow. Below, I've set the secret name to `CLOUDFLARE_API_TOKEN`:
+1. In your repository, open "Settings → Secrets and variables → Actions".
+2. Create a secret (for example `DEPLOY_API_TOKEN`) holding your deployment token.
+3. Reference it in the `with` block of the workflow.
 
 ```yaml
-jobs:
-  deploy:
-    name: Deploy
-    steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+- name: Deploy to ZenthCloud
+  uses: skygenesisenterprise/zenthcloud-actions@v1
+  with:
+    apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
 ```
+
+Never paste tokens directly into a workflow file. The action never prints the token into logs.
+
+> The dedicated ZenthCloud CI/CD token flow — scoped project tokens created from the dashboard, with `ZENTHCLOUD_API_TOKEN` and `ZENTHCLOUD_API_URL` inputs — is part of the ongoing migration to the ZenthCloud CI/CD API and is not available yet.
 
 ## Configuration
 
-You can pass `wranglerVersion` to install a specific version of Wrangler from NPM. This accepts any version format NPM understands: an exact version like `4.81.0`, a major version like `4`, a range like `^4.0.0` or `4.x`, or `latest`.
+### Inputs
+
+| Input              | Description                                                                                     | Required |
+| ------------------ | ----------------------------------------------------------------------------------------------- | -------- |
+| `apiToken`         | Deployment API token, provided through GitHub secrets                                           | No       |
+| `accountId`        | Account identifier forwarded to the legacy build engine                                         | No       |
+| `environment`      | Target environment — must be defined in your project configuration                              | No       |
+| `quiet`            | Suppresses output from deployment commands (default `false`)                                    | No       |
+| `workingDirectory` | Relative path the deployment commands run from                                                  | No       |
+| `command`          | Deployment command to run, defaults to `deploy`; multiple commands can be separated by newlines | No       |
+| `secrets`          | Environment variable names, newline separated, bound to your project as secrets                 | No       |
+| `vars`             | Environment variable names, newline separated, bound to your project as vars                    | No       |
+| `preCommands`      | Commands to execute before deploying                                                            | No       |
+| `postCommands`     | Commands to execute after deploying                                                             | No       |
+| `packageManager`   | `npm`, `yarn`, `pnpm` or `bun` — inferred from the lockfile when omitted                        | No       |
+| `wranglerVersion`  | Legacy engine only: version of the bundled build tool to install                                | No       |
+| `gitHubToken`      | GitHub token, used to create GitHub Deployments and job summaries                               | No       |
+
+### Outputs
+
+| Output                       | Description                                                             |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `command-output`             | Standard output of the deployment command                               |
+| `command-stderr`             | Standard error output of the deployment command                         |
+| `deployment-url`             | URL of the deployment, when the command produced one                    |
+| `pages-deployment-alias-url` | Pages deployment alias URL, when applicable (legacy engine)             |
+| `pages-deployment-id`        | Pages deployment ID, when applicable (legacy engine)                    |
+| `pages-environment`          | Pages deployment environment, when applicable (legacy engine)           |
+| `preview-url`                | Stable preview URL, when the command produced a preview (legacy engine) |
+| `preview-deployment-url`     | Immutable preview deployment URL (legacy engine)                        |
+| `preview-name`               | Preview name (legacy engine)                                            |
+| `preview-id`                 | Preview resource ID (legacy engine)                                     |
+| `preview-deployment-id`      | Preview deployment ID (legacy engine)                                   |
+
+### Permissions
+
+Minimal permissions for a deploy workflow:
 
 ```yaml
-jobs:
-  deploy:
-    steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        wranglerVersion: "4"
+permissions:
+  contents: read
 ```
 
-If you omit `wranglerVersion` and Wrangler is already installed in your environment, the action uses the existing installation. If Wrangler is not installed, the action installs a default version.
-
-Optionally, you can also pass a `workingDirectory` key to the action. This will allow you to specify a subdirectory of the repo to run the Wrangler command from.
+Add `deployments: write` only when you pass `gitHubToken`, so the action can publish GitHub Deployments and job summaries:
 
 ```yaml
-jobs:
-  deploy:
-    steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        workingDirectory: "subfoldername"
+permissions:
+  contents: read
+  deployments: write
 ```
 
-[Worker secrets](https://developers.cloudflare.com/workers/tooling/wrangler/secrets/) can optionally be passed in via `secrets` as a string of names separated by newlines. Each secret name must match the name of an environment variable specified in the `env` field. This creates or replaces the value for the Worker secret using the `wrangler secret put` command. It's also possible to specify worker environment using environment parameter.
+## Examples
 
-```yaml
-jobs:
-  deploy:
-    steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        environment: production
-        secrets: |
-          SECRET1
-          SECRET2
-      env:
-        SECRET1: ${{ secrets.SECRET1 }}
-        SECRET2: ${{ secrets.SECRET2 }}
-```
-
-If you need to run additional shell commands before or after your command, you can specify them as input to `preCommands` (before `deploy`) or `postCommands` (after `deploy`). These can include additional `wrangler` commands (that is, `whoami`, `kv:key put`) or any other commands available inside the `wrangler-action` context.
-
-```yaml
-jobs:
-  deploy:
-    steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        preCommands: echo "*** pre command ***"
-        postCommands: |
-          echo "*** post commands ***"
-          wrangler kv:key put --binding=MY_KV key2 value2
-          echo "******"
-```
-
-You can use the `command` option to do specific actions such as running `wrangler whoami` against your project:
-
-```yaml
-jobs:
-  deploy:
-    steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        command: whoami
-```
-
-You can also add a command that spans multiple lines:
-
-```yaml
-jobs:
-  deploy:
-    steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        command: |
-          pages project list
-          pages deploy .vercel/output/static --project-name=demo-actions --branch=test
-```
-
-## Use cases
-
-### Deploy when commits are merged to main
-
-The above workflow examples have already shown how to run `wrangler-action` when new commits are merged to the main branch. For most developers, this workflow will easily replace manual deploys and be a great first integration step with `wrangler-action`:
+### Deploy on merge to main
 
 ```yaml
 on:
@@ -213,69 +185,88 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
     steps:
       - uses: actions/checkout@v6
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v4
+      - name: Deploy to ZenthCloud
+        uses: skygenesisenterprise/zenthcloud-actions@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
 ```
 
-Note that there are a number of possible events, like `push`, that can be used to trigger a workflow. For more details on the events available, refer to the [GitHub Actions documentation](https://help.github.com/en/articles/workflow-syntax-for-github-actions#on).
-
-### Deploy your Pages site (production & preview)
-
-If you want to deploy your Pages project with GitHub Actions rather than the built-in continous integration (CI), then this is a great way to do it. Wrangler 2 will populate the commit message and branch for you. You only need to pass the project name. If a push to a non-production branch is done, it will deploy as a preview deployment:
+### Deploy to an environment with secrets and vars
 
 ```yaml
-on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Deploy to ZenthCloud
+        uses: skygenesisenterprise/zenthcloud-actions@v1
+        with:
+          apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
+          environment: production
+          secrets: |
+            SECRET1
+            SECRET2
+          vars: |
+            MY_VAR
+        env:
+          SECRET1: ${{ secrets.SECRET1 }}
+          SECRET2: ${{ secrets.SECRET2 }}
+          MY_VAR: production-value
+```
+
+Every name listed in `secrets` or `vars` must have a matching entry in the workflow `env` block.
+
+### Run a custom command
+
+```yaml
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Deploy to ZenthCloud
+        uses: skygenesisenterprise/zenthcloud-actions@v1
+        with:
+          apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
+          command: deploy --dry-run
+```
+
+### Use outputs in a later step
+
+```yaml
+- name: Deploy to ZenthCloud
+  id: deploy
+  uses: skygenesisenterprise/zenthcloud-actions@v1
+  with:
+    apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
+
+- name: Print deployment URL
+  run: echo "${{ steps.deploy.outputs.deployment-url }}"
+```
+
+### GitHub Deployments and job summaries
+
+```yaml
+permissions:
+  contents: read
+  deployments: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
-    permissions:
-      contents: read
-      deployments: write
     steps:
       - uses: actions/checkout@v6
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v4
+      - name: Deploy to ZenthCloud
+        uses: skygenesisenterprise/zenthcloud-actions@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy YOUR_DIST_FOLDER --project-name=example
-          # Optional: Enable this if you want to have GitHub Deployments triggered
+          apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Deploying on a schedule
-
-If you would like to deploy your Workers application on a recurring basis – for example, every hour, or daily – the `schedule` trigger allows you to use cron syntax to define a workflow schedule. The below example will deploy at the beginning of every hour:
-
-```yaml
-on:
-  schedule:
-    - cron: "0 * * * *"
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    name: Deploy
-    steps:
-      - uses: actions/checkout@v6
-      - name: Deploy app
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-```
-
-If you need help defining the correct cron syntax, check out [crontab.guru](https://crontab.guru/), which provides a friendly user interface for validating your cron schedule.
-
 ### Manually triggering a deployment
-
-If you need to trigger a workflow at-will, you can use GitHub's `workflow_dispatch` [event](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#workflow_dispatch) in your workflow file. By setting your workflow to trigger on that event, you will be able to deploy your application via the GitHub UI. The UI also accepts inputs that can be used to configure the action:
 
 ```yaml
 on:
@@ -285,161 +276,127 @@ on:
         description: "Choose an environment to deploy to: <dev|staging|prod>"
         required: true
         default: "dev"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
     steps:
       - uses: actions/checkout@v6
-      - name: Deploy app
-        uses: cloudflare/wrangler-action@v4
+      - name: Deploy to ZenthCloud
+        uses: skygenesisenterprise/zenthcloud-actions@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: deploy --env ${{ github.event.inputs.environment }}
+          apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
+          environment: ${{ github.event.inputs.environment }}
 ```
 
-For more advanced usage or to programmatically trigger the workflow from scripts, refer to [the GitHub documentation](https://docs.github.com/en/rest/reference/actions#create-a-workflow-dispatch-event) for making API calls.
-
-### Upload a Worker Version
-
-To create a new version of your Worker that is not deployed immediately, use the `wrangler versions upload` command. Worker versions created in this way can then be deployed all at once at a later time or gradually deployed using the `wrangler versions deploy` command or via the Cloudflare dashboard under the Deployments tab. Wrangler v3.40.0 or above is required to use this feature.
+### Deploying on a schedule
 
 ```yaml
-jobs:
-  upload:
-    runs-on: ubuntu-latest
-    name: Deploy
-    steps:
-      - uses: actions/checkout@v6
-      - name: Upload Worker Version
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: versions upload
-```
+on:
+  schedule:
+    - cron: "0 * * * *"
 
-## Advanced Usage
-
-### Setting A Worker Secret for A Specific Environment
-
-There is an environment parameter that can be set within the workflow to enable this. Example:
-
-```yaml
-- uses: cloudflare/wrangler-action@v4
-  with:
-    apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    command: deploy --env production
-    secrets: |
-      SUPER_SECRET
-    environment: production
-  env:
-    SUPER_SECRET: ${{ secrets.SUPER_SECRET }}
-```
-
-### Using Wrangler Command Output in Subsequent Steps
-
-More advanced workflows may need to parse the resulting output of Wrangler commands. To do this, you can use the `command-output` output variable in subsequent steps. For example, if you want to print the output of the Wrangler command, you can do the following:
-
-```yaml
-- name: Deploy
-  id: deploy
-  uses: cloudflare/wrangler-action@v4
-  with:
-    apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    command: pages deploy --project-name=example
-
-- name: print wrangler command output
-  env:
-    CMD_OUTPUT: ${{ steps.deploy.outputs.command-output }}
-  run: echo $CMD_OUTPUT
-```
-
-Now when you run your workflow, you will see the full output of the Wrangler command in your workflow logs. You can also use this output in subsequent workflow steps to parse the output for specific values.
-
-> Note: the `command-stderr` output variable is also available if you need to parse the standard error output of the Wrangler command.
-
-### Using the `deployment-url` and `pages-deployment-alias-url` Output Variables
-
-If you are executing a Wrangler command that results in either a Workers or Pages deployment, you can utilize the `deployment-url` output variable to get the URL of the deployment. For example, if you want to print the deployment URL after deploying your application, you can do the following:
-
-```yaml
-- name: Deploy
-  id: deploy
-  uses: cloudflare/wrangler-action@v4
-  with:
-    apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    command: pages deploy --project-name=example
-
-- name: print deployment-url
-  env:
-    DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
-  run: echo $DEPLOYMENT_URL
-```
-
-The resulting output will look something like this:
-
-```text
-https://<your_pages_site>.pages.dev
-```
-
-Pages deployments will also provide their alias URL (since Wrangler v3.78.0). You can use the `pages-deployment-alias-url` output variable to get the URL of the deployment alias. This is useful for, for example, branch aliases for preview deployments.
-
-If the sample action above was used to deploy a branch other than main, you could use the following to get the branch URL:
-
-```yaml
-- name: print pages-deployment-alias-url
-  env:
-    DEPLOYMENT_ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
-  run: echo $DEPLOYMENT_ALIAS_URL
-```
-
-Resulting in:
-
-```text
-https://new-feature.<your_pages_site>.pages.dev
-```
-
-### Using a different package manager
-
-By default, this action will detect which package manager to use, based on the presence of a `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, or `bun.lockb`/`bun.lock` file.
-
-If you need to use a specific package manager for your application, you can set the `packageManager` input to `npm`, `yarn`, `pnpm`, or `bun`. You don't need to set this option unless you want to override the default behavior.
-
-```yaml
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     steps:
-      uses: cloudflare/wrangler-action@v4
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        packageManager: pnpm
+      - uses: actions/checkout@v6
+      - name: Deploy to ZenthCloud
+        uses: skygenesisenterprise/zenthcloud-actions@v1
+        with:
+          apiToken: ${{ secrets.DEPLOY_API_TOKEN }}
 ```
 
 ## Troubleshooting
 
-### "I just started using Workers/Wrangler and I don't know what this is!"
+- **"Value for secret X not found in environment"** — every name listed in `secrets` must have a matching entry in the workflow `env` block.
+- **"Directory X does not exist"** — `workingDirectory` must be a path relative to the repository root.
+- **Authentication failures** — check that the token secret exists and has not expired.
+- **No `deployment-url` in outputs** — the command did not produce a deployment URL; only deployment commands emit one.
 
-Refer to the [Quick Start guide](https://developers.cloudflare.com/workers/quickstart) to get started. Once you have a Workers application, you may want to set it up to automatically deploy from GitHub whenever you change your project.
+## Development
 
-### "[ERROR] No account id found, quitting.."
+The repository uses **Node.js 24** (see `.nvmrc`). Install dependencies from the repository root:
 
-You will need to add `account_id = ""` in your `wrangler.toml` file or set `accountId` in this GitHub Action.
-
-```yaml
-on: [push]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    name: Deploy
-    steps:
-      - uses: actions/checkout@v6
-      - name: Deploy app
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+```bash
+npm install
 ```
+
+### Root commands
+
+| Command           | Purpose                                                     |
+| ----------------- | ----------------------------------------------------------- |
+| `npm run build`   | Compile the action with `@vercel/ncc` into `dist/index.mjs` |
+| `npm test`        | Run the vitest suite                                        |
+| `npm run check`   | Verify formatting with prettier                             |
+| `npm run format`  | Format the repository with prettier                         |
+| `npm run release` | Compile and tag a release (driven by changesets)            |
+
+The compiled artifact `dist/index.mjs` is what GitHub Actions executes, not the TypeScript sources — rebuild and commit it together with every source change. Tests use mocks only; no deployment is ever triggered from the test suite.
+
+## FAQ
+
+### Is ZenthCloud Actions free?
+
+Yes. The project is open source and licensed under the MIT License. ZenthCloud itself is open source; a commercial edition with additional features and premium support is maintained by [Sky Genesis Enterprise](https://skygenesisenterprise.com).
+
+### Which ZenthCloud installations does it support?
+
+The same workflow targets all three modes: **ZenthCloud Self** (self-hosted), **ZenthCloud Hybrid** and **ZenthCloud Cloud**. Today the action still runs through the bundled legacy build engine; targeting ZenthCloud instances directly through the ZenthCloud CI/CD API is the next milestone of the migration.
+
+### What do I need to use it?
+
+A GitHub repository, a deployment token stored in repository secrets, and a project configured in your ZenthCloud installation. The action itself runs on the `node24` runner — no other runtime is required.
+
+### Where is the documentation?
+
+This README documents the action. The ZenthCloud product documentation lives at [docs.zenthcloud.com](https://docs.zenthcloud.com).
+
+### How do I get help or report a bug?
+
+Open a [GitHub issue](https://github.com/skygenesisenterprise/zenthcloud-actions/issues), or use the support routes listed at [zenthcloud.com/resources/support](https://zenthcloud.com/resources/support). Never report a security vulnerability in a public issue — see [Security](#security).
+
+## Related resources
+
+### Official
+
+- ZenthCloud platform: [github.com/skygenesisenterprise/zenthcloud](https://github.com/skygenesisenterprise/zenthcloud)
+- Product docs: [docs.zenthcloud.com](https://docs.zenthcloud.com)
+- Website: [zenthcloud.com](https://zenthcloud.com)
+- Console: [dash.zenthcloud.com](https://dash.zenthcloud.com)
+- Status: [status.zenthcloud.com](https://status.zenthcloud.com)
+- Support: [zenthcloud.com/resources/support](https://zenthcloud.com/resources/support)
+
+### Community
+
+- Bugs and feature requests: [GitHub Issues](https://github.com/skygenesisenterprise/zenthcloud-actions/issues)
+- Contribution guide: [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md)
+- Code of Conduct: [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+- Discord: [join the ZenthCloud community](https://discord.gg/GUkDugVh34)
+
+### Commercial
+
+- Commercial edition and premium support: [Sky Genesis Enterprise](https://skygenesisenterprise.com)
+- Licensing and legal: [legal@skygenesisenterprise.com](mailto:legal@skygenesisenterprise.com)
+
+## Contributing
+
+Contributions and suggestions are welcome. Please read the [Code of Conduct](CODE_OF_CONDUCT.md) before participating, then follow the [contribution guide](.github/CONTRIBUTING.md) for setup and review expectations.
+
+- Keep PR titles in [Conventional Commits](https://www.conventionalcommits.org) format (`fix: …`, `feat: …`, `docs: …`).
+- Add a changeset with `npx changeset` when your change is user-facing.
+- Run `npm test`, `npm run build` and `npm run check` before opening a pull request.
+
+## Security
+
+Do not report security vulnerabilities in public issues. Follow the private reporting instructions in [SECURITY.md](SECURITY.md), or email **security@skygenesisenterprise.com**.
+
+## License and provenance
+
+ZenthCloud Actions is licensed under the [MIT License](LICENSE).
+
+It is derived from [`cloudflare/wrangler-action`](https://github.com/cloudflare/wrangler-action), also MIT licensed. The upstream copyright notice is preserved in the [LICENSE](LICENSE) file, and the history of the derived code, up to upstream release `4.1.3`, lives in the [upstream changelog](https://github.com/cloudflare/wrangler-action/blob/main/CHANGELOG.md).
+
+## Note
+
+ZenthCloud Actions is an open-source project maintained by [Sky Genesis Enterprise](https://skygenesisenterprise.com). Links to external services are provided for convenience and do not imply endorsement. Check each service's own terms before relying on it in production.

@@ -1,12 +1,12 @@
 import { setOutput } from "@actions/core";
-import { info, WranglerActionConfig } from "./wranglerAction";
+import { info, ZenthcloudActionConfig } from "./zenthcloudAction";
 import {
 	getOutputEntry,
 	OutputEntryDeployment,
 	OutputEntryPagesDeployment,
 	OutputEntryPreview,
 	OutputEntryVersionUpload,
-} from "./wranglerArtifactManager";
+} from "./artifactManager";
 import {
 	createGitHubDeploymentAndJobSummary,
 	createPreviewGitHubDeploymentAndJobSummary,
@@ -36,7 +36,7 @@ function extractDeploymentUrlsFromStdout(stdOut: string): {
 }
 
 async function handlePagesDeployOutputEntry(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	pagesDeployOutputEntry: OutputEntryPagesDeployment,
 ) {
 	setOutput("deployment-url", pagesDeployOutputEntry.url);
@@ -55,7 +55,7 @@ async function handlePagesDeployOutputEntry(
  * @deprecated Use {@link handlePagesDeployOutputEntry} instead.
  */
 function handlePagesDeployCommand(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	stdOut: string,
 ) {
 	info(
@@ -72,7 +72,7 @@ function handlePagesDeployCommand(
 }
 
 function handleWranglerDeployOutputEntry(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	wranglerDeployOutputEntry: OutputEntryDeployment,
 ) {
 	// If no deployment urls found in wrangler output file, log that we couldn't find any urls and return.
@@ -101,7 +101,7 @@ function handleWranglerDeployOutputEntry(
  * @deprecated Use {@link handleWranglerDeployOutputEntry} instead.
  */
 function handleWranglerDeployCommand(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	stdOut: string,
 ) {
 	info(
@@ -119,7 +119,7 @@ function handleVersionsUploadOutputEntry(
 }
 
 async function handlePreviewOutputEntry(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	previewOutputEntry: OutputEntryPreview,
 ) {
 	if (previewOutputEntry.preview_urls.length === 0) {
@@ -157,7 +157,7 @@ async function handlePreviewOutputEntry(
  * If no wrangler output file found, log a message stating deployment-url will be unavailable for output.
  * @deprecated Use {@link handleVersionsOutputEntry} instead.
  */
-function handleVersionsOutputCommand(config: WranglerActionConfig) {
+function handleVersionsOutputCommand(config: ZenthcloudActionConfig) {
 	info(
 		config,
 		"Unable to find a WRANGLER_OUTPUT_DIR, deployment-url will be unavailable for output. Have you updated wrangler to version >=3.88.0?",
@@ -165,7 +165,7 @@ function handleVersionsOutputCommand(config: WranglerActionConfig) {
 }
 
 function handleDeprectatedStdoutParsing(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	command: string,
 	stdOut: string,
 ) {
@@ -207,7 +207,7 @@ function handleDeprectatedStdoutParsing(
 }
 
 export async function handleCommandOutputParsing(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	command: string,
 	stdOut: string,
 ) {

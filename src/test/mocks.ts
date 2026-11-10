@@ -18,7 +18,7 @@ export function mockGithubDeployments({
 					}
 					const GithubDeploymentsRequest = z.object({
 						auto_merge: z.literal(false),
-						description: z.literal("Cloudflare Pages"),
+						description: z.literal("Deployment"),
 						required_contexts: z.array(z.string()).length(0),
 						environment: z.literal("production"),
 						production_environment: z.literal(false),

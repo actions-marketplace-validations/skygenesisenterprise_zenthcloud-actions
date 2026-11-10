@@ -1,9 +1,6 @@
 import mockfs from "mock-fs";
 import { afterEach, describe, expect, it } from "vitest";
-import {
-	getOutputEntry,
-	getWranglerArtifacts,
-} from "./wranglerArtifactManager";
+import { getOutputEntry, getWranglerArtifacts } from "./artifactManager";
 
 afterEach(() => {
 	mockfs.restore();

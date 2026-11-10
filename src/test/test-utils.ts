@@ -1,10 +1,10 @@
-import { WranglerActionConfig } from "../wranglerAction";
+import { ZenthcloudActionConfig } from "../zenthcloudAction";
 
 export function getTestConfig({
 	config = {},
 }: {
-	config?: Partial<WranglerActionConfig>;
-} = {}): WranglerActionConfig {
+	config?: Partial<ZenthcloudActionConfig>;
+} = {}): ZenthcloudActionConfig {
 	return Object.assign(
 		{
 			WRANGLER_VERSION: "4.72.0",
@@ -20,7 +20,7 @@ export function getTestConfig({
 			PACKAGE_MANAGER: "npm",
 			WRANGLER_OUTPUT_DIR: "/tmp/wranglerArtifacts",
 			GITHUB_TOKEN: "xxxxyy23213123132131",
-		} as const satisfies WranglerActionConfig,
+		} as const satisfies ZenthcloudActionConfig,
 		config,
 	);
 }

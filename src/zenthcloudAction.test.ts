@@ -8,7 +8,7 @@ import {
 	parseWranglerVersion,
 	uploadSecrets,
 	wranglerCommands,
-} from "./wranglerAction";
+} from "./zenthcloudAction";
 import { getTestConfig } from "./test/test-utils";
 
 describe("parseWranglerVersion", () => {

@@ -1,72 +1,72 @@
-name: "Deploy to Cloudflare Workers with Wrangler"
+name: "Deploy to ZenthCloud"
 branding:
   icon: "upload-cloud"
-  color: "orange"
-description: "Deploy your Cloudflare projects from GitHub using Wrangler"
+  color: "blue"
+description: "Deploy your ZenthCloud projects from GitHub"
 runs:
   # Possible values: https://github.com/actions/runner/blob/main/src/Runner.Common/Util/NodeUtil.cs#L9
   using: "node24"
   main: "dist/index.mjs"
 inputs:
   apiToken:
-    description: "Your Cloudflare API Token"
+    description: "Your deployment API token (store it in GitHub secrets)"
     required: false
   accountId:
-    description: "Your Cloudflare Account ID"
+    description: "Account identifier forwarded to the legacy build engine"
     required: false
   quiet:
-    description: "Supresses output from Wrangler commands, defaults to `false`"
+    description: "Suppresses output from deployment commands, defaults to `false`"
     required: false
     default: "false"
   environment:
-    description: "The environment you'd like to deploy your Workers project to - must be defined in wrangler.toml"
+    description: "The environment you'd like to deploy your project to - must be defined in your project configuration"
   workingDirectory:
-    description: "The relative path which Wrangler commands should be run from"
+    description: "The relative path which deployment commands should be run from"
     required: false
   wranglerVersion:
-    description: "The version of Wrangler you'd like to use to deploy your Workers project"
+    description: "Legacy engine only: the version of the bundled build tool to use"
     required: false
   secrets:
-    description: "A string of environment variable names, separated by newlines. These will be bound to your Worker as Secrets and must match the names of environment variables declared in `env` of this workflow."
+    description: "A string of environment variable names, separated by newlines. These will be bound to your project as secrets and must match the names of environment variables declared in `env` of this workflow."
     required: false
   preCommands:
-    description: "Commands to execute before deploying the Workers project"
+    description: "Commands to execute before deploying the project"
     required: false
   postCommands:
-    description: "Commands to execute after deploying the Workers project"
+    description: "Commands to execute after deploying the project"
     required: false
   command:
-    description: 'The Wrangler command (along with any arguments) you wish to run. Multiple Wrangler commands can be run by separating each command with a newline. Defaults to `"deploy"`. The `preview` command requires Wrangler >= 4.136.3.'
+    description: 'The deployment command (along with any arguments) you wish to run. Multiple commands can be run by separating each command with a newline. Defaults to `"deploy"`.'
     required: false
   vars:
-    description: "A string of environment variable names, separated by newlines. These will be bound to your Worker using the values of matching environment variables declared in `env` of this workflow."
+    description: "A string of environment variable names, separated by newlines. These will be bound to your project using the values of matching environment variables declared in `env` of this workflow."
     required: false
   packageManager:
-    description: "The package manager you'd like to use to install and run wrangler. If not specified, the preferred package manager will be inferred based on the presence of a lockfile or fallback to using npm if no lockfile is found. Valid values are `npm` | `pnpm` | `yarn` | `bun`."
+    description: "The package manager you'd like to use to install and run the build tool. If not specified, the preferred package manager will be inferred based on the presence of a lockfile or fallback to using npm if no lockfile is found. Valid values are `npm` | `pnpm` | `yarn` | `bun`."
     required: false
   gitHubToken:
     description: "GitHub Token"
     required: false
 outputs:
   command-output:
-    description: "The output of the Wrangler command (comes from stdout)"
+    description: "The output of the deployment command (comes from stdout)"
   command-stderr:
-    description: "The error output of the Wrangler command (comes from stderr)"
+    description: "The error output of the deployment command (comes from stderr)"
   deployment-url:
-    description: "If the command was a Workers, Workers Preview, or Pages deployment, this will be the URL of the deployment"
+    description: "If the command resulted in a deployment, this will be the URL of the deployment"
   pages-deployment-alias-url:
-    description: "If the command was a Pages deployment, this will be the URL of the deployment alias (if it exists) - needs wrangler >= 3.78.0"
+    description: "If the command was a Pages deployment, this will be the URL of the deployment alias (if it exists) - needs the legacy engine >= 3.78.0"
   pages-deployment-id:
-    description: "If the command was a Pages deployment, this will be the ID of the deployment - needs wrangler >= 3.81.0"
+    description: "If the command was a Pages deployment, this will be the ID of the deployment - needs the legacy engine >= 3.81.0"
   pages-environment:
-    description: "If the command was a Pages deployment, this will be the environment of the deployment - needs wrangler >= 3.81.0"
+    description: "If the command was a Pages deployment, this will be the environment of the deployment - needs the legacy engine >= 3.81.0"
   preview-url:
-    description: "If the command was a Workers Preview deployment, this will be the stable Preview URL - needs Wrangler >= 4.136.3"
+    description: "If the command was a Preview deployment, this will be the stable Preview URL - needs the legacy engine >= 4.136.3"
   preview-deployment-url:
-    description: "If the command was a Workers Preview deployment, this will be the immutable deployment URL - needs Wrangler >= 4.136.3"
+    description: "If the command was a Preview deployment, this will be the immutable deployment URL - needs the legacy engine >= 4.136.3"
   preview-name:
-    description: "If the command was a Workers Preview deployment, this will be the Preview name - needs Wrangler >= 4.136.3"
+    description: "If the command was a Preview deployment, this will be the Preview name - needs the legacy engine >= 4.136.3"
   preview-id:
-    description: "If the command was a Workers Preview deployment, this will be the Preview resource ID - needs Wrangler >= 4.136.3"
+    description: "If the command was a Preview deployment, this will be the Preview resource ID - needs the legacy engine >= 4.136.3"
   preview-deployment-id:
-    description: "If the command was a Workers Preview deployment, this will be the Preview deployment ID - needs Wrangler >= 4.136.3"
+    description: "If the command was a Preview deployment, this will be the Preview deployment ID - needs the legacy engine >= 4.136.3"

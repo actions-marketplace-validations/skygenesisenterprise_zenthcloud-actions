@@ -3,14 +3,14 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { getPackageManager } from "./packageManagers";
 import { checkWorkingDirectory } from "./utils";
-import { main, WranglerActionConfig } from "./wranglerAction";
+import { main, ZenthcloudActionConfig } from "./zenthcloudAction";
 
 const DEFAULT_WRANGLER_VERSION = "4";
 
 /**
  * A configuration object that contains all the inputs & immutable state for the action.
  */
-const config: WranglerActionConfig = {
+const config: ZenthcloudActionConfig = {
 	WRANGLER_VERSION: getInput("wranglerVersion") || DEFAULT_WRANGLER_VERSION,
 	didUserProvideWranglerVersion: Boolean(getInput("wranglerVersion")),
 	secrets: getMultilineInput("secrets"),

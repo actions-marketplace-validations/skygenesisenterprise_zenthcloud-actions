@@ -16,8 +16,8 @@ import { error, info, semverCompare } from "./utils";
 import { handleCommandOutputParsing } from "./commandOutputParsing";
 import semverLt from "semver/functions/lt";
 
-export type WranglerActionConfig = z.infer<typeof wranglerActionConfig>;
-export const wranglerActionConfig = z.object({
+export type ZenthcloudActionConfig = z.infer<typeof zenthcloudActionConfig>;
+export const zenthcloudActionConfig = z.object({
 	WRANGLER_VERSION: z.string(),
 	didUserProvideWranglerVersion: z.boolean(),
 	secrets: z.array(z.string()),
@@ -33,24 +33,24 @@ export const wranglerActionConfig = z.object({
 	GITHUB_TOKEN: z.string(),
 });
 
-function startGroup(config: WranglerActionConfig, name: string): void {
+function startGroup(config: ZenthcloudActionConfig, name: string): void {
 	if (!config.QUIET_MODE) {
 		originalStartGroup(name);
 	}
 }
 
-function endGroup(config: WranglerActionConfig): void {
+function endGroup(config: ZenthcloudActionConfig): void {
 	if (!config.QUIET_MODE) {
 		originalEndGroup();
 	}
 }
 
 async function main(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	packageManager: PackageManager,
 ) {
 	try {
-		wranglerActionConfig.parse(config);
+		zenthcloudActionConfig.parse(config);
 		authenticationSetup(config);
 		const resolvedVersion = await installWrangler(config, packageManager);
 		const resolvedConfig = { ...config, WRANGLER_VERSION: resolvedVersion };
@@ -69,7 +69,7 @@ async function main(
 			getMultilineInput("postCommands"),
 			"post",
 		);
-		info(resolvedConfig, "🏁 Wrangler Action completed", true);
+		info(resolvedConfig, "🏁 ZenthCloud Action completed", true);
 	} catch (err: unknown) {
 		err instanceof Error && error(config, err.message);
 		setFailed("🚨 Action failed");
@@ -88,7 +88,7 @@ function isExactSemver(version: string): boolean {
 }
 
 async function resolveInstalledVersion(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	packageManager: PackageManager,
 ): Promise<string> {
 	const { stdout } = await getExecOutput(
@@ -103,7 +103,7 @@ async function resolveInstalledVersion(
 }
 
 async function installWrangler(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	packageManager: PackageManager,
 ): Promise<string> {
 	if (config["WRANGLER_VERSION"].startsWith("1")) {
@@ -202,13 +202,13 @@ async function installWrangler(
 	);
 }
 
-function authenticationSetup(config: WranglerActionConfig) {
+function authenticationSetup(config: ZenthcloudActionConfig) {
 	process.env.CLOUDFLARE_API_TOKEN = config["CLOUDFLARE_API_TOKEN"];
 	process.env.CLOUDFLARE_ACCOUNT_ID = config["CLOUDFLARE_ACCOUNT_ID"];
 }
 
 async function execCommands(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	packageManager: PackageManager,
 	commands: string[],
 	cmdType: string,
@@ -261,7 +261,7 @@ function getEnvVar(envVar: string) {
 }
 
 async function legacyUploadSecrets(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	packageManager: PackageManager,
 	secrets: string[],
 	environment?: string,
@@ -281,7 +281,7 @@ async function legacyUploadSecrets(
 }
 
 async function uploadSecrets(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	packageManager: PackageManager,
 ) {
 	const secrets: string[] = config["secrets"];
@@ -338,7 +338,7 @@ async function uploadSecrets(
 }
 
 async function wranglerCommands(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	packageManager: PackageManager,
 ) {
 	startGroup(config, "🚀 Running Wrangler Commands");

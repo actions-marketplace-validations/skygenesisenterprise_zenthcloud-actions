@@ -6,7 +6,7 @@ import {
 	error as originalError,
 	warning as originalWarn,
 } from "@actions/core";
-import { WranglerActionConfig } from "./wranglerAction";
+import { ZenthcloudActionConfig } from "./zenthcloudAction";
 
 /**
  * A helper function to compare two semver versions. If the second arg is greater than the first arg, it returns true.
@@ -27,7 +27,7 @@ export function checkWorkingDirectory(workingDirectory = ".") {
 }
 
 export function info(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	message: string,
 	bypass?: boolean,
 ): void {
@@ -37,7 +37,7 @@ export function info(
 }
 
 export function warn(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	message: string,
 	bypass?: boolean,
 ): void {
@@ -47,7 +47,7 @@ export function warn(
 }
 
 export function error(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	message: string,
 	bypass?: boolean,
 ): void {

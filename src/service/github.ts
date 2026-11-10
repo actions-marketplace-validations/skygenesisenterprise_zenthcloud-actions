@@ -5,8 +5,8 @@ import { info, warn } from "../utils";
 import {
 	OutputEntryPagesDeployment,
 	OutputEntryPreview,
-} from "../wranglerArtifactManager";
-import { WranglerActionConfig } from "../wranglerAction";
+} from "../artifactManager";
+import { ZenthcloudActionConfig } from "../zenthcloudAction";
 
 type Octokit = ReturnType<typeof getOctokit>;
 
@@ -19,7 +19,7 @@ export async function createGitHubDeployment({
 	projectName,
 	deploymentUrl,
 }: {
-	config: WranglerActionConfig;
+	config: ZenthcloudActionConfig;
 	octokit: Octokit;
 	productionBranch: string;
 	environment: string;
@@ -35,7 +35,7 @@ export async function createGitHubDeployment({
 		repo: context.repo.repo,
 		ref: githubBranch || context.ref,
 		auto_merge: false,
-		description: "Cloudflare Pages",
+		description: "Deployment",
 		required_contexts: [],
 		environment,
 		production_environment: productionEnvironment,
@@ -54,7 +54,7 @@ export async function createGitHubDeployment({
 		production_environment: productionEnvironment,
 		// don't have project_name or deployment_id I think
 		log_url: `https://dash.cloudflare.com/${config.CLOUDFLARE_ACCOUNT_ID}/pages/view/${projectName}/${deploymentId}`,
-		description: "Cloudflare Pages",
+		description: "Deployment",
 		state: "success",
 		auto_inactive: false,
 	});
@@ -72,7 +72,7 @@ export async function createJobSummary({
 	await summary
 		.addRaw(
 			`
-# Deploying with Cloudflare Pages
+# Deploying with ZenthCloud
 
 | Name                    | Result |
 | ----------------------- | - |
@@ -88,7 +88,7 @@ export async function createJobSummary({
  * Create github deployment, if GITHUB_TOKEN is present in config
  */
 export async function createGitHubDeploymentAndJobSummary(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	pagesArtifactFields: OutputEntryPagesDeployment,
 ) {
 	if (
@@ -144,7 +144,7 @@ export async function createPreviewJobSummary({
 	await summary
 		.addRaw(
 			`
-# Workers Preview Deployment
+# Preview Deployment
 
 | Name                       | Result |
 | -------------------------- | - |
@@ -161,7 +161,7 @@ export async function createPreviewJobSummary({
  * Create a non-production GitHub deployment and job summary for a Workers Preview.
  */
 export async function createPreviewGitHubDeploymentAndJobSummary(
-	config: WranglerActionConfig,
+	config: ZenthcloudActionConfig,
 	previewFields: OutputEntryPreview,
 ) {
 	if (!config.GITHUB_TOKEN) {
@@ -180,7 +180,7 @@ export async function createPreviewGitHubDeploymentAndJobSummary(
 				repo: context.repo.repo,
 				ref: githubBranch || context.ref,
 				auto_merge: false,
-				description: "Cloudflare Workers Preview",
+				description: "Preview deployment",
 				required_contexts: [],
 				environment,
 				production_environment: productionEnvironment,
@@ -199,7 +199,7 @@ export async function createPreviewGitHubDeploymentAndJobSummary(
 				environment_url: previewFields.preview_urls[0],
 				production_environment: productionEnvironment,
 				log_url: `https://dash.cloudflare.com/${config.CLOUDFLARE_ACCOUNT_ID}/?to=/${config.CLOUDFLARE_ACCOUNT_ID}/workers/services/view/${previewFields.worker_name}/production/previews/${encodeURIComponent(previewFields.preview_slug)}/deployments/${encodeURIComponent(previewFields.deployment_id)}`,
-				description: "Cloudflare Workers Preview",
+				description: "Preview deployment",
 				state: "success",
 				auto_inactive: false,
 			});

@@ -24,7 +24,7 @@ afterEach(() => {
 describe("github", () => {
 	it("Calls createGitHubDeployment successfully", async () => {
 		const githubUser = "mock-user";
-		const githubRepoName = "wrangler-action";
+		const githubRepoName = "zenthcloud-actions";
 		const server = setupServer(
 			...mockGithubDeployments({ githubUser, githubRepoName }).handlers,
 		);
@@ -58,7 +58,7 @@ describe("github", () => {
 		});
 		expect((await readFile("summary")).toString()).toMatchInlineSnapshot(`
 			"
-			# Deploying with Cloudflare Pages
+			# Deploying with ZenthCloud
 
 			| Name                    | Result |
 			| ----------------------- | - |
@@ -95,7 +95,7 @@ describe("github", () => {
 
 	it("creates a non-production preview deployment and job summary", async () => {
 		const githubUser = "mock-user";
-		const githubRepoName = "wrangler-action";
+		const githubRepoName = "zenthcloud-actions";
 		let deploymentRequest: Record<string, unknown> | undefined;
 		let statusRequest: Record<string, unknown> | undefined;
 		const server = setupServer(
@@ -139,7 +139,7 @@ describe("github", () => {
 
 			expect(deploymentRequest).toMatchObject({
 				ref: "feature/branch",
-				description: "Cloudflare Workers Preview",
+				description: "Preview deployment",
 				environment: "PR / Feature",
 				production_environment: false,
 			});
