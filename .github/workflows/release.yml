@@ -35,7 +35,7 @@ jobs:
 
       - name: Create Version PR
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           # Changesets owns the final immutable GitHub release. The custom publish
           # script replaces build-and-tag-action by compiling and verifying the
